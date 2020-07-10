@@ -21,7 +21,7 @@ Returns a SQL query string that will create the GoldMedal table with ten columns
 const createGoldMedalTable = () => {
   return `CREATE TABLE GoldMedal (
     id INTEGER PRIMARY KEY,
-    year INTEGER,
+    year INTEGER NOT NULL,
     city TEXT NOT NULL,
     season TEXT NOT NULL,
     name TEXT NOT NULL,
@@ -52,7 +52,7 @@ const mostSummerWins = country => {
   return `SELECT year, COUNT(*) AS count
   FROM GoldMedal
   WHERE country = '${country}'
-    AND season = 'summer'
+    AND season = 'Summer'
   GROUP BY year
   ORDER BY COUNT(*) DESC
   LIMIT 1;`;
@@ -67,7 +67,7 @@ const mostWinterWins = country => {
   return `SELECT year, COUNT(*) AS count
   FROM GoldMedal
   WHERE country = '${country}'
-    AND season = 'winter'
+    AND season = 'Winter'
   GROUP BY year
   ORDER BY COUNT(*) DESC
   LIMIT 1;`;
@@ -79,7 +79,12 @@ won the most medals, along with the number of medals aliased to 'count'.
 */
 
 const bestYear = country => {
-  return;
+  return `SELECT year, COUNT(*) AS count FROM GoldMedal
+    WHERE country = '${country}'
+    GROUP BY year
+    ORDER BY COUNT(*) DESC
+    LIMIT 1;
+    `;
 };
 
 /*
@@ -88,7 +93,13 @@ won the most medals, along with the number of medals aliased to 'count'.
 */
 
 const bestDiscipline = country => {
-  return;
+  return `
+    SELECT discipline, COUNT(*) as count FROM GoldMedal
+    WHERE country = '${country}'
+    GROUP BY discipline
+    ORDER BY COUNT(*) DESC
+    LIMIT 1;
+  `;
 };
 
 /*
@@ -97,7 +108,13 @@ won the most medals, along with the number of medals aliased to 'count'.
 */
 
 const bestSport = country => {
-  return;
+  return `
+    SELECT sport, COUNT(*) as count FROM GoldMedal
+    WHERE country = '${country}'
+    GROUP BY sport
+    ORDER BY COUNT(*) DESC
+    LIMIT 1;
+  `;
 };
 
 /*
@@ -106,7 +123,13 @@ won the most medals, along with the number of medals aliased to 'count'.
 */
 
 const bestEvent = country => {
-  return;
+  return `
+  SELECT event, COUNT(*) as count FROM GoldMedal
+  WHERE country = '${country}'
+  GROUP BY event
+  ORDER BY COUNT(*) DESC
+  LIMIT 1;
+`;
 };
 
 /*
@@ -114,7 +137,11 @@ Returns a SQL query string that will find the number of male medalists.
 */
 
 const numberMenMedalists = country => {
-  return;
+  return `
+    SELECT COUNT(DISTINCT name) FROM GoldMedal
+    WHERE country = '${country}'
+      AND gender = 'Men';
+  `;
 };
 
 /*
@@ -122,7 +149,11 @@ Returns a SQL query string that will find the number of female medalists.
 */
 
 const numberWomenMedalists = country => {
-  return;
+  return `
+    SELECT COUNT(DISTINCT name) FROM GoldMedal
+    WHERE country = '${country}'
+      AND gender = 'Women';
+  `;
 };
 
 /*
@@ -130,7 +161,13 @@ Returns a SQL query string that will find the athlete with the most medals.
 */
 
 const mostMedaledAthlete = country => {
-  return;
+  return `
+    SELECT name FROM GoldMedal
+    WHERE country = '${country}'
+    GROUP BY name
+    ORDER BY COUNT(*) DESC
+    LIMIT 1;
+  `;
 };
 
 /*
@@ -139,7 +176,19 @@ optionally ordered by the given field in the specified direction.
 */
 
 const orderedMedals = (country, field, sortAscending) => {
-  return;
+  let orderstring = '';
+  if (field) {
+    if (sortAscending) {
+      orderstring = `ORDER BY ${field} ASC`
+    } else {
+      orderstring = `ORDER BY ${field} DESC`
+    }
+  }
+  return `
+    SELECT * FROM GoldMedal
+    WHERE country = '${country}'
+    ${orderstring};
+  `;
 };
 
 /*
@@ -150,7 +199,21 @@ aliased as 'percent'. Optionally ordered by the given field in the specified dir
 */
 
 const orderedSports = (country, field, sortAscending) => {
-  return;
+  let orderstring = '';
+  if (field) {
+    if (sortAscending) {
+      orderstring = `ORDER BY ${field} ASC`
+    } else {
+      orderstring = `ORDER BY ${field} DESC`
+    }
+  }
+  return `
+    SELECT sport, COUNT(sport) AS count, (COUNT(sport) * 100 / (select COUNT(*) FROM GoldMedal WHERE country = '${country}')) AS percent
+    FROM GoldMedal
+    WHERE country = '${country}'
+    GROUP BY sport
+    ${orderstring};
+  `;
 };
 
 module.exports = {
